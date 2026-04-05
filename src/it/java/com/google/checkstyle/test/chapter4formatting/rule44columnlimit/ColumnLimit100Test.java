@@ -59,4 +59,9 @@ public class ColumnLimit100Test extends AbstractGoogleModuleTestSupport {
     public void testFormattedTextBlockLineLimitEdgeCase() throws Exception {
         verifyWithWholeConfig(getPath("InputFormattedColumnLimitEdgeCase.java"));
     }
+
+    @Test
+    public void testEscapedTextBlockDelimiterLineLimit() throws Exception {
+        verifyWithWholeConfig(getPath("InputColumnLimitEscapedDelimiter.java"));
+    }
 }

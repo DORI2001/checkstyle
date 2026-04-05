@@ -75,17 +75,17 @@ public class LineLengthCheck extends AbstractFileSetCheck {
     /** Default maximum number of columns in a line. */
     private static final int DEFAULT_MAX_COLUMNS = 80;
 
-    /** Specify the maximum line length allowed. */
-    private int max = DEFAULT_MAX_COLUMNS;
-
-    /** Specify pattern for lines to ignore. */
-    private Pattern ignorePattern = Pattern.compile("^(package|import) .*");
-
     /** Java file extension. */
     private static final String JAVA_FILE_EXTENSION = ".java";
 
     /** Text block delimiter. */
     private static final String TEXT_BLOCK_DELIMITER = "\"\"\"";
+
+    /** Specify the maximum line length allowed. */
+    private int max = DEFAULT_MAX_COLUMNS;
+
+    /** Specify pattern for lines to ignore. */
+    private Pattern ignorePattern = Pattern.compile("^(package|import) .*");
 
     @Override
     protected void processFiltered(File file, FileText fileText) {
@@ -126,11 +126,15 @@ public class LineLengthCheck extends AbstractFileSetCheck {
      */
     private static int getUnescapedTextBlockDelimiterCount(String line) {
         int count = 0;
-        for (int index = 0; index <= line.length() - TEXT_BLOCK_DELIMITER.length(); index++) {
+        int index = 0;
+        while (index <= line.length() - TEXT_BLOCK_DELIMITER.length()) {
             if (line.startsWith(TEXT_BLOCK_DELIMITER, index)
                     && !isEscaped(line, index)) {
                 count++;
-                index += TEXT_BLOCK_DELIMITER.length() - 1;
+                index += TEXT_BLOCK_DELIMITER.length();
+            }
+            else {
+                index++;
             }
         }
         return count;
@@ -146,7 +150,9 @@ public class LineLengthCheck extends AbstractFileSetCheck {
      */
     private static boolean isEscaped(String line, int index) {
         int backslashCount = 0;
-        for (int i = index - 1; i >= 0 && line.charAt(i) == '\\'; i--) {
+        for (int backslashIndex = index - 1;
+             backslashIndex >= 0 && line.charAt(backslashIndex) == '\\';
+             backslashIndex--) {
             backslashCount++;
         }
         return backslashCount % 2 != 0;

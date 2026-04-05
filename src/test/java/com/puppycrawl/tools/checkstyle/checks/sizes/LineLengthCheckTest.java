@@ -169,4 +169,48 @@ public class LineLengthCheckTest extends AbstractModuleTestSupport {
         verifyWithInlineConfigParser(
                 getPath("InputLineLengthTextBlock.java"), expected);
     }
+
+    @Test
+    public void testEscapedTextBlockDelimiters() throws Exception {
+        final String[] expected = {
+            "1: " + getCheckMessage(MSG_KEY, 20, 64),
+            "3: " + getCheckMessage(MSG_KEY, 20, 56),
+            "6: " + getCheckMessage(MSG_KEY, 20, 28),
+            "8: " + getCheckMessage(MSG_KEY, 20, 28),
+            "9: " + getCheckMessage(MSG_KEY, 20, 36),
+        };
+
+        final DefaultConfiguration checkConfig = createModuleConfig(LineLengthCheck.class);
+        checkConfig.addProperty("max", "20");
+        checkConfig.addProperty("ignorePattern", "$^");
+
+        verify(checkConfig, getPath("InputLineLengthEscapedTextBlockDelimiters.java"), expected);
+    }
+
+    @Test
+    public void testTextBlockDelimitersInNonJavaFile() throws Exception {
+        final String[] expected = {
+            "1: " + getCheckMessage(MSG_KEY, 20, 21),
+            "2: " + getCheckMessage(MSG_KEY, 20, 24),
+        };
+
+        final DefaultConfiguration checkConfig = createModuleConfig(LineLengthCheck.class);
+        checkConfig.addProperty("max", "20");
+        checkConfig.addProperty("fileExtensions", "txt");
+        checkConfig.addProperty("ignorePattern", "$^");
+
+        verify(checkConfig, getPath("InputLineLengthTextFile.txt"), expected);
+    }
+
+    @Test
+    public void testIsEscapedDelimiterAtStartOfLine() throws Exception {
+        final java.lang.reflect.Method isEscaped = LineLengthCheck.class
+                .getDeclaredMethod("isEscaped", String.class, int.class);
+        isEscaped.setAccessible(true);
+
+        final boolean escaped = (boolean) isEscaped.invoke(null, "\"\"\"", 0);
+        if (escaped) {
+            throw new IllegalStateException("Delimiter at start of line must not be escaped");
+        }
+    }
 }
